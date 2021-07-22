@@ -13,11 +13,11 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.Executors;
+import java.util.Collections;
 
 @Service
 @AllArgsConstructor
-public final class EmailConsumerUseCase {
+public class EmailConsumerUseCase {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailConsumerUseCase.class);
     private final ObjectMapper objectMapper;
@@ -25,10 +25,11 @@ public final class EmailConsumerUseCase {
     private final AwsProvider awsProvider;
     private final TemplateProvider templateProvider;
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> dlqProducer;
+    private final KafkaTemplate<String, String> errorProducer;
 
     @KafkaListener(topics = "sap-mail-integration", groupId = "mensageria-email")
-    public void consume(String message) {
+    public String consume(String message) {
 
         try {
 
@@ -41,20 +42,33 @@ public final class EmailConsumerUseCase {
                                                             emailConfig.config.delimiter, 
                                                             emailConfig.config.separator);
 
-            final SESRequestDTO sesRequestDTO = SESRequestDTO.builder()
-                .fromAddress(emailConfig.address.from)
-                .toAddress("fabiojavax@gmail.com")
-                .subject(emailConfig.config.subject)
-                .textBody(mergedEmail)
-                .htmlBody(mergedEmail)
-                .build();
+//            final SESRequestDTO sesRequestDTO = SESRequestDTO.builder()
+//                .fromAddress(emailConfig.address.from)
+//                .toAddress("fabiojavax@gmail.com")
+//                .subject(emailConfig.config.subject)
+//                .textBody(mergedEmail)
+//                .htmlBody(mergedEmail)
+//                .build();
 
-            Executors.newCachedThreadPool().submit(() -> awsProvider.sendMail(sesRequestDTO));
+            final SESRequestDTO sesRequestDTO = SESRequestDTO.builder()
+                    .fromAddress("fabiojavax@gmail.com")
+                    .toAddress("fabiojavax@gmail.com")
+                    .subject("Teste de email com Anexo")
+                    .textBody("Essa mensagem deven possuir uma imagem como anexo")
+                    .htmlBody("Essa mensagem deven possuir uma imagem como anexo")
+                    .attachments(Collections.singletonList("multilaser.png"))
+                    .build();
+
+            awsProvider.sendMail(sesRequestDTO);
+
+            return mergedEmail;
 
         } catch (Exception e) {
             logger.error(String.format("error when consuming message: %s", e.getMessage()));
-            kafkaTemplate.send("sap-mail-integration-dlq", message);
+            errorProducer.send("sap-mail-integration-dlq", message);
         }
+
+        return null;
 
     }
 

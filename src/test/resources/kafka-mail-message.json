@@ -1,0 +1,16 @@
+{
+  "template": 123,
+  "address": {
+    "from": "fabiojavax@gmail.com",
+    "to": [
+      "rodrigo.moge@multilaser.com.br",
+      "fabiojavax@gmail.com"
+    ]
+  },
+  "config": {
+    "subject": "Envio de email parametrizado pelo Kafka",
+    "delimiter": ",",
+    "separator": ":",
+    "parameters": "campo1:testing1,campo2:testing2"
+  }
+}

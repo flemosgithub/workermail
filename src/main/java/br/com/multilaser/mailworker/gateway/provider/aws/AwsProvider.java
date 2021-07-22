@@ -13,6 +13,6 @@ public interface AwsProvider {
     @RequestMapping(path = "mail/send",
                     method = RequestMethod.POST,
                     produces = {MediaType.APPLICATION_JSON_VALUE})
-    void sendMail(@RequestBody SESRequestDTO request);
+    boolean sendMail(@RequestBody SESRequestDTO request);
 
 }
