@@ -42,14 +42,6 @@ public class EmailConsumerUseCase {
                                                             emailConfig.config.delimiter, 
                                                             emailConfig.config.separator);
 
-//            final SESRequestDTO sesRequestDTO = SESRequestDTO.builder()
-//                .fromAddress(emailConfig.address.from)
-//                .toAddress("fabiojavax@gmail.com")
-//                .subject(emailConfig.config.subject)
-//                .textBody(mergedEmail)
-//                .htmlBody(mergedEmail)
-//                .build();
-
             final SESRequestDTO sesRequestDTO = SESRequestDTO.builder()
                     .fromAddress("fabiojavax@gmail.com")
                     .toAddress("fabiojavax@gmail.com")
